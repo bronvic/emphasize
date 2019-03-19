@@ -1,0 +1,8 @@
+[package]
+name = "emphasize"
+version = "0.1.0"
+authors = ["Voronwe <voronwe@protonmail.com>"]
+
+[dependencies]
+term = "*"
+getopts = "*"
