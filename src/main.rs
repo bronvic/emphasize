@@ -16,14 +16,15 @@ fn main() {
     let options = options::get();
     let mut terminal = term::stdout().unwrap();
 
-    if args.len() < 1 {
-        options::print_usage(&program_name, options);
-        return;
-    }
-
     // TODO: can it be more accurate (without to_vec)?
     let context = context::from_args(args[1..].to_vec(), &options);
-    if context.just_print_help {
+    if context.print_help {
+        if !context.error_text.is_empty() {
+            terminal.fg(term::color::BRIGHT_RED).unwrap();
+            print!("{}\n\n", context.error_text);
+            terminal.reset().unwrap();
+        }
+
         options::print_usage(&program_name, options);
         return;
     }

@@ -32,7 +32,8 @@ pub struct Context {
     pub text_color: term::color::Color,
 
     // indicator of problems with argument parsing
-    pub just_print_help: bool,
+    pub print_help: bool,
+    pub error_text: String,
 }
 
 custom_derive! {
@@ -68,7 +69,8 @@ fn default_context() -> Context {
         with_color: true,
         text_color: term::color::BRIGHT_RED,
 
-        just_print_help: false,
+        print_help: false,
+        error_text: "".to_string(),
     }
 }
 
@@ -80,7 +82,7 @@ pub fn from_args(args: Vec<String>, options: &Options) -> Context {
     };
 
     if matches.opt_present("h") {
-        context.just_print_help = true;
+        context.print_help = true;
         return context;
     }
 
@@ -91,24 +93,33 @@ pub fn from_args(args: Vec<String>, options: &Options) -> Context {
     match matches.opt_str("f") {
         Some(file_name) => match File::open(file_name.clone()) {
             Ok(_) => context.input_filename = file_name,
-            Err(_) => context.just_print_help = true,
-        },
+            Err(err) => {
+                context.print_help = true;
+                context.error_text = format!("Wrong input file: {}; {}", file_name, err.to_string());
+            },
+        }
         None => {},
     }
 
     match matches.opt_str("i") {
         Some(indent_str) => match u8::from_str(&indent_str) {
             Ok(indent) => context.indent = indent,
-            Err(_) => context.just_print_help = true,
-        },
+            Err(err) => {
+                context.print_help = true;
+                context.error_text = format!("Wrong indent: {}; {}", indent_str, err.to_string());
+            },
+        }
         None => {},
     }
 
     match matches.opt_str("e") {
         Some(emphasizer_str) => match emphasizer_str.chars().next() {
             Some(emphasizer) => context.emphasizer = emphasizer,
-            None => context.just_print_help = true,
-        },
+            None => {
+                context.print_help = true;
+                context.error_text = format!("Wrong emphasizer specified: {}", emphasizer_str);
+            },
+        }
         None => {},
     }
 
@@ -116,7 +127,10 @@ pub fn from_args(args: Vec<String>, options: &Options) -> Context {
         Some(color) => {
             match color_map().get(&color.to_lowercase()) {
                 Some(color) => context.text_color = *color,
-                None => context.just_print_help = true,
+                None => {
+                    context.print_help = true;
+                    context.error_text = format!("Wrong color: {}", color);
+                },
             }
         },
         None => {},
@@ -126,7 +140,10 @@ pub fn from_args(args: Vec<String>, options: &Options) -> Context {
         Some(emphasize_type) => {
             match to_frame_mode(&emphasize_type.to_lowercase()) {
                 Ok(mode) => context.frame_mode = mode,
-                Err(_) => context.just_print_help = true,
+                Err(_) => {
+                    context.print_help = true;
+                    context.error_text = format!("Wrong emphasize mode: {}", emphasize_type);
+                },
             }
         },
         None => {},
