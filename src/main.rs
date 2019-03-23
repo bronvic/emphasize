@@ -22,10 +22,9 @@ fn main() {
     }
 
     // TODO: can it be more accurate (without to_vec)?
-    let context = context::from_args(args[1..].to_vec(), options);
+    let context = context::from_args(args[1..].to_vec(), &options);
     if context.just_print_help {
-        // FIXME: can't use options because `options` has type `getopts::Options`, which does not implement the `Copy` trait
-        options::print_usage(&program_name, options::get());
+        options::print_usage(&program_name, options);
         return;
     }
 
@@ -51,7 +50,6 @@ fn main() {
     };
 
     for line in input {
-        // TODO: process unwrap
         let unwrapped_line = line.unwrap();
         if !unwrapped_line.contains(&context.match_value) {
             println!("{}", unwrapped_line);

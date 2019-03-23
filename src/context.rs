@@ -72,7 +72,7 @@ fn default_context() -> Context {
     }
 }
 
-pub fn from_args(args: Vec<String>, options: Options) -> Context {
+pub fn from_args(args: Vec<String>, options: &Options) -> Context {
     let mut context = default_context();
     let matches = match options.parse(&args) {
         Ok(m) => { m }
