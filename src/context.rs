@@ -1,18 +1,16 @@
 extern crate term;
 
+
 use getopts::Options;
 use std::collections::HashMap;
 use std::str::FromStr;
-
 
 pub struct Context {
     pub match_value: String,
     pub indent: u8,
 
-    pub frame_string: bool,
-
     pub emphasizer: char,
-    pub with_emphasizer: bool,
+    pub frame_mode: FrameMode,
 
     pub with_color: bool,
     pub text_color: term::color::Color,
@@ -20,15 +18,34 @@ pub struct Context {
     pub just_print_help: bool,
 }
 
+custom_derive! {
+    #[derive(Debug, EnumDisplay)]
+    pub enum FrameMode {
+        none,
+        frame,
+        prefix,
+
+        all,
+    }
+}
+
+fn to_frame_mode(s: &str) -> Result<FrameMode, ()> {
+    match s {
+            "none" => Ok(FrameMode::none),
+            "frame" => Ok(FrameMode::frame),
+            "prefix" => Ok(FrameMode::prefix),
+            "all" => Ok(FrameMode::all),
+            _ => Err(()),
+        }
+}
+
 fn default_context() -> Context {
     Context {
         match_value: "".to_string(),
         indent: 0,
 
-        with_emphasizer: false,
         emphasizer: '!',
-
-        frame_string: false,
+        frame_mode: FrameMode::none,
 
         with_color: true,
         text_color: term::color::BRIGHT_RED,
@@ -79,12 +96,14 @@ pub fn from_args(args: Vec<String>, options: Options) -> Context {
         None => {},
     }
 
-    if matches.opt_present("E") {
-        context.with_emphasizer = true;
-    }
-
-    if matches.opt_present("F") {
-        context.frame_string = true;
+    match matches.opt_str("t") {
+        Some(emphasize_type) => {
+            match to_frame_mode(&emphasize_type.to_lowercase()) {
+                Ok(mode) => context.frame_mode = mode,
+                Err(_) => context.just_print_help = true,
+            }
+        },
+        None => {},
     }
 
     if matches.opt_present("C") {

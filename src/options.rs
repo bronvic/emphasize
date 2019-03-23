@@ -10,8 +10,8 @@ pub fn get() -> Options {
     options.optopt("c", "color", "set color of emphasizing\n
         list of colors: [black, blue, bright_black, bright_blue, bright_cyan, bright_green, bright_magenta, bright_red, bright_white, bright_yellow, cyan, green, magenta, red, white, yellow]", "");
 
-    options.optflag("E", "text-emphasize", "emphasize string by inserting string made from emphasize symbols before and after it");
-    options.optflag("F", "framing", "framing of emphasized string");
+    options.optopt("t", "text-emphasize", "emphasize string by framing it with addition strings and/or modifying it's prefix\n
+        Available modes are: [none, frame, prefix]", "");
     options.optflag("C", "without-color", "disables color emphasizing");
 
     options
