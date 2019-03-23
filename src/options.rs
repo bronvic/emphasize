@@ -12,7 +12,7 @@ pub fn get() -> Options {
         list of colors: [black, blue, bright_black, bright_blue, bright_cyan, bright_green, bright_magenta, bright_red, bright_white, bright_yellow, cyan, green, magenta, red, white, yellow]", "");
 
     options.optopt("t", "text-emphasize", "emphasize string by framing it with addition strings and/or modifying it's prefix\n
-        Available modes are: [none, frame, prefix]", "");
+        Available modes are: [none, frame, prefix, all]", "");
 
     options.optflag("r", "regexp", "set search by regexp");
     options.optflag("C", "without-color", "disables color emphasizing");
