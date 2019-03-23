@@ -1,5 +1,6 @@
 extern crate term;
 extern crate getopts;
+extern crate regex;
 #[macro_use] extern crate custom_derive;
 #[macro_use] extern crate enum_derive;
 
@@ -9,6 +10,7 @@ mod options;
 use std::io::{self, BufRead, BufReader};
 use std::env;
 use std::fs::File;
+use regex::Regex;
 
 fn main() {
     let args: Vec<String> = env::args().collect();
@@ -52,7 +54,15 @@ fn main() {
 
     for line in input {
         let unwrapped_line = line.unwrap();
-        if !unwrapped_line.contains(&context.match_value) {
+        let mut matches: bool;
+
+        if context.is_regexp {
+            matches = Regex::new(&context.match_value).unwrap().is_match(&unwrapped_line);
+        } else {
+            matches = unwrapped_line.contains(&context.match_value);
+        }
+
+        if !matches {
             println!("{}", unwrapped_line);
         } else {
             // indent before

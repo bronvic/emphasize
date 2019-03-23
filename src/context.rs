@@ -4,6 +4,7 @@ use getopts::Options;
 use std::collections::HashMap;
 use std::str::FromStr;
 use std::fs::File;
+use regex::Regex;
 
 pub struct Context {
     // It would be great to have such generic iterator here, as commented below
@@ -19,6 +20,7 @@ pub struct Context {
 
     pub input_filename: String,
     pub match_value: String,
+    pub is_regexp: bool,
 
     // emphasize by indent
     pub indent: u8,
@@ -31,7 +33,7 @@ pub struct Context {
     pub with_color: bool,
     pub text_color: term::color::Color,
 
-    // indicator of problems with argument parsing
+    // indicator of problems with argument parsing or just help printer
     pub print_help: bool,
     pub error_text: String,
 }
@@ -59,8 +61,10 @@ fn to_frame_mode(s: &str) -> Result<FrameMode, ()> {
 
 fn default_context() -> Context {
     Context {
-        match_value: "".to_string(),
         input_filename: "".to_string(),
+        match_value: "".to_string(),
+        is_regexp: false,
+
         indent: 0,
 
         emphasizer: '!',
@@ -95,7 +99,7 @@ pub fn from_args(args: Vec<String>, options: &Options) -> Context {
             Ok(_) => context.input_filename = file_name,
             Err(err) => {
                 context.print_help = true;
-                context.error_text = format!("Wrong input file: {}; {}", file_name, err.to_string());
+                context.error_text = format!("Wrong input file: {}\n{}", file_name, err.to_string());
             },
         }
         None => {},
@@ -106,7 +110,7 @@ pub fn from_args(args: Vec<String>, options: &Options) -> Context {
             Ok(indent) => context.indent = indent,
             Err(err) => {
                 context.print_help = true;
-                context.error_text = format!("Wrong indent: {}; {}", indent_str, err.to_string());
+                context.error_text = format!("Wrong indent: {}\n{}", indent_str, err.to_string());
             },
         }
         None => {},
@@ -147,6 +151,18 @@ pub fn from_args(args: Vec<String>, options: &Options) -> Context {
             }
         },
         None => {},
+    }
+
+    if matches.opt_present("r") {
+        context.is_regexp = true;
+
+        match Regex::new(&context.match_value) {
+            Ok(_) => {},
+            Err(err) => {
+                context.print_help = true;
+                context.error_text = format!("Wrong regexp: {}\n{}", context.match_value, err.to_string());
+            },
+        }
     }
 
     if matches.opt_present("C") {

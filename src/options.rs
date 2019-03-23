@@ -13,6 +13,8 @@ pub fn get() -> Options {
 
     options.optopt("t", "text-emphasize", "emphasize string by framing it with addition strings and/or modifying it's prefix\n
         Available modes are: [none, frame, prefix]", "");
+
+    options.optflag("r", "regexp", "set search by regexp");
     options.optflag("C", "without-color", "disables color emphasizing");
 
     options
