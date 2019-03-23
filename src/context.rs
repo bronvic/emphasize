@@ -1,40 +1,57 @@
 extern crate term;
 
-
 use getopts::Options;
 use std::collections::HashMap;
 use std::str::FromStr;
+use std::fs::File;
 
 pub struct Context {
+    // It would be great to have such generic iterator here, as commented below
+    // We could store there iterator over stdin or file and iterate like this:
+    // for line in context.input {
+
+    // Unfortunately, it seems impossible. And it is very very sad.
+    // https://stackoverflow.com/questions/55314607/how-to-store-an-iterator-over-stdin-in-a-structure#55314945
+
+    // TODO: become rust guru and resolve this problem
+
+    // pub input: Box<Iterator<Item = io::Result<String>>>
+
+    pub input_filename: String,
     pub match_value: String,
+
+    // emphasize by indent
     pub indent: u8,
 
+    // emphasize by text
     pub emphasizer: char,
     pub frame_mode: FrameMode,
 
+    // emphasize by color
     pub with_color: bool,
     pub text_color: term::color::Color,
 
+    // indicator of problems with argument parsing
     pub just_print_help: bool,
 }
 
 custom_derive! {
     #[derive(Debug, EnumDisplay)]
     pub enum FrameMode {
-        none,
-        frame,
-        prefix,
+        None,
+        Frame,
+        Prefix,
 
-        all,
+        All,
     }
 }
 
 fn to_frame_mode(s: &str) -> Result<FrameMode, ()> {
     match s {
-            "none" => Ok(FrameMode::none),
-            "frame" => Ok(FrameMode::frame),
-            "prefix" => Ok(FrameMode::prefix),
-            "all" => Ok(FrameMode::all),
+            "none" => Ok(FrameMode::None),
+            "frame" => Ok(FrameMode::Frame),
+            "prefix" => Ok(FrameMode::Prefix),
+            "all" => Ok(FrameMode::All),
             _ => Err(()),
         }
 }
@@ -42,10 +59,11 @@ fn to_frame_mode(s: &str) -> Result<FrameMode, ()> {
 fn default_context() -> Context {
     Context {
         match_value: "".to_string(),
+        input_filename: "".to_string(),
         indent: 0,
 
         emphasizer: '!',
-        frame_mode: FrameMode::none,
+        frame_mode: FrameMode::None,
 
         with_color: true,
         text_color: term::color::BRIGHT_RED,
@@ -68,6 +86,14 @@ pub fn from_args(args: Vec<String>, options: Options) -> Context {
 
     if !matches.free.is_empty() {
         context.match_value = matches.free[0].clone();
+    }
+
+    match matches.opt_str("f") {
+        Some(file_name) => match File::open(file_name.clone()) {
+            Ok(_) => context.input_filename = file_name,
+            Err(_) => context.just_print_help = true,
+        },
+        None => {},
     }
 
     match matches.opt_str("i") {

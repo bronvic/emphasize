@@ -6,14 +6,14 @@ extern crate getopts;
 mod context;
 mod options;
 
-use std::io::{self, BufRead};
+use std::io::{self, BufRead, BufReader};
 use std::env;
+use std::fs::File;
 
 fn main() {
     let args: Vec<String> = env::args().collect();
     let program_name = args[0].clone();
     let options = options::get();
-    let stdin = io::stdin();
     let mut terminal = term::stdout().unwrap();
 
     if args.len() < 1 {
@@ -29,7 +29,28 @@ fn main() {
         return;
     }
 
-    for line in stdin.lock().lines() {
+    // hack due to https://stackoverflow.com/questions/55314607/how-to-store-an-iterator-over-stdin-in-a-structure
+    let stdin;
+    let mut stdin_lines;
+    let mut file_lines;
+    let file;
+    let input: &mut Iterator<Item = _> = match context.input_filename.is_empty() {
+        true => {
+            stdin = io::stdin();
+            stdin_lines = stdin.lock().lines();
+            &mut stdin_lines
+        }
+        false => {
+            file = match File::open(context.input_filename.clone()) {
+                Ok(file) => file,
+                Err(msg) => panic!("Can't open {}. Reason: {}", context.input_filename, msg),
+            };
+            file_lines = BufReader::new(file).lines();
+            &mut file_lines
+        }
+    };
+
+    for line in input {
         // TODO: process unwrap
         let unwrapped_line = line.unwrap();
         if !unwrapped_line.contains(&context.match_value) {
@@ -42,25 +63,22 @@ fn main() {
 
             // text framing
             match context.frame_mode {
-                context::FrameMode::none => {
+                context::FrameMode::None => {
                     println!("{}", unwrapped_line);
                 },
-                context::FrameMode::frame => {
+                context::FrameMode::Frame => {
                     println!("{}", emphasize_line(context.emphasizer, unwrapped_line.len()));
                     println!("{}", unwrapped_line);
                     println!("{}", emphasize_line(context.emphasizer, unwrapped_line.len()));
                 },
-                context::FrameMode::prefix => {
+                context::FrameMode::Prefix => {
                     println!("{}", prefix_line(&unwrapped_line, context.emphasizer));
                 },
-                context::FrameMode::all => {
+                context::FrameMode::All => {
                     println!("{}", emphasize_line(context.emphasizer, unwrapped_line.len() + 4));
                     println!("{}", wrapped_line(&unwrapped_line, context.emphasizer));
                     println!("{}", emphasize_line(context.emphasizer, unwrapped_line.len() + 4));
                 },
-                _ => {
-                    panic!("Wrong option {:?} for text emphasize options was not caught!", context.frame_mode);
-                }
             }
 
             // Reset after color change

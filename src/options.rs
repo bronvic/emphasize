@@ -5,6 +5,7 @@ pub fn get() -> Options {
 
     options.optflag("h", "help", "print this help menu");
 
+    options.optopt("f", "file", "path to input file. If omitted, stdin will be used", "");
     options.optopt("i", "indent", "set indent before and after emphasizing", "[0-127]");
     options.optopt("e", "emphasizer", "set emphasize symbol", "Char");
     options.optopt("c", "color", "set color of emphasizing\n
