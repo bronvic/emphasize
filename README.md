@@ -51,6 +51,6 @@ Default emphasize symbol is '!'
 
 
 # Examples
-* `tail -f /var/log/Xorg.0.log | ./emphasize (II)`
-* `tail -f /var/log/Xorg.0.log | ./emphasize -t all -c bright_cyan -i 1 (II)`
-* `./emphasize -t prefix -C -r --file /var/log/Xorg.0.log "([L-N])\w+"`
+* ![default](https://github.com/bronvic/emphasize/tree/master/content/emph_default.png)
+* ![color mode](https://github.com/bronvic/emphasize/tree/master/content/emph_color_mode.png)
+* ![regexp](https://github.com/bronvic/emphasize/tree/master/content/emph_regexp.png)
