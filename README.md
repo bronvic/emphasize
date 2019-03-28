@@ -8,8 +8,14 @@ It works the same as grep util, but instead of hiding inappropriate strings it e
 If you are looking some strings in continues flow of logs, you may want to emphasize something you need without
 hiding everything else. That was the case I wrote this program for
 
-# Usage
-`./emphasize [options] match_value`
+# How to run
+For now, you have to compile it with cargo
+```
+git clone https://github.com/bronvic/emphasize.git
+cd emphasize
+cargo build --release
+./target/release/emphasize [options] match_value
+```
 
 | Command       | Description   |
 | ------------- |:-------------|
@@ -51,6 +57,6 @@ Default emphasize symbol is '!'
 
 
 # Examples
-* ![default](https://github.com/bronvic/emphasize/tree/master/content/emph_default.png)
-* ![color mode](https://github.com/bronvic/emphasize/tree/master/content/emph_color_mode.png)
-* ![regexp](https://github.com/bronvic/emphasize/tree/master/content/emph_regexp.png)
+* ![tail -f /var/log/Xorg.0.log | ./target/debug/emphasize 2.4](https://github.com/bronvic/emphasize/tree/master/content/emph_default.png)
+* ![tail -f /var/log/Xorg.0.log | ./target/debug/emphasize -t all -c bright_cyan -i 1 2.4](https://github.com/bronvic/emphasize/tree/master/content/emph_color_mode.png)
+* ![tail -f /var/log/Xorg.0.log | ./target/debug/emphasize -t prefix -C -r "([L-N])\w+"](https://github.com/bronvic/emphasize/tree/master/content/emph_regexp.png)
