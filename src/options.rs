@@ -20,7 +20,7 @@ pub fn get() -> Options {
     options
 }
 
-pub fn print_usage(name: &str, options: Options) {
+pub fn print_usage(name: &String, options: Options) {
     let brief = format!("Usage: {} [options] [search substring]\n
         Searches for given substring in standard input and emphasizes it", name);
     print!("{}", options.usage(&brief));

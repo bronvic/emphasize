@@ -108,7 +108,7 @@ fn emphasize_line(emphasizer: char, length: usize) -> String {
     emphasize_line
 }
 
-fn prefix_line(line: &str, prefix: char) -> String {
+fn prefix_line(line: &String, prefix: char) -> String {
     let mut prefix_line = String::with_capacity(line.len() + 2);
     prefix_line.push(prefix);
     prefix_line.push(' ');
@@ -117,7 +117,7 @@ fn prefix_line(line: &str, prefix: char) -> String {
     prefix_line
 }
 
-fn wrapped_line(line: &str, wrapper: char) -> String {
+fn wrapped_line(line: &String, wrapper: char) -> String {
     let prefix_line = prefix_line(line, wrapper);
 
     let mut wrapped_line = String::with_capacity(prefix_line.len() + 2);
