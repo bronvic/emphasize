@@ -38,15 +38,12 @@ pub struct Context {
     pub error_text: String,
 }
 
-custom_derive! {
-    #[derive(Debug, EnumDisplay)]
-    pub enum FrameMode {
-        None,
-        Frame,
-        Prefix,
+pub enum FrameMode {
+    None,
+    Frame,
+    Prefix,
 
-        All,
-    }
+    All,
 }
 
 fn to_frame_mode(s: &str) -> Result<FrameMode, ()> {

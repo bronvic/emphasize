@@ -6,6 +6,4 @@ authors = ["Voronwe <voronwe.s@protonmail.com>"]
 [dependencies]
 term = "*"
 getopts = "*"
-enum_derive = "*"
-custom_derive = "*"
 regex = "*"
