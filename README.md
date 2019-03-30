@@ -17,7 +17,7 @@ cargo build --release
 ./target/release/emphasize [options] match_value
 ```
 
-| Command       | Description   |
+| Option        | Description   |
 | ------------- |:-------------|
 | -h, --help | Print help menu |
 | -f, --file | Path to the input file. If omitted, stdin will be used |
