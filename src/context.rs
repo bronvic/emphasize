@@ -36,6 +36,121 @@ pub struct Context {
     pub error_text: String,
 }
 
+impl Context {
+    fn default() -> Context {
+        Context {
+            input_filename: "".to_string(),
+            match_value: "".to_string(),
+            is_regexp: false,
+
+            indent: 0,
+
+            emphasizer: '!',
+            frame_mode: FrameMode::None,
+
+            with_color: true,
+            text_color: term::color::BRIGHT_RED,
+
+            print_help: false,
+            error_text: "".to_string(),
+        }
+    }
+
+    pub fn from_args(args: &[String], options: &Options) -> Context {
+        let mut context = Context::default();
+        let matches = match options.parse(args) {
+            Ok(m) => { m }
+            Err(f) => { panic!(f.to_string()) }
+        };
+
+        if matches.opt_present("h") {
+            context.print_help = true;
+            return context;
+        }
+
+        if !matches.free.is_empty() {
+            context.match_value = matches.free[0].clone();
+        }
+
+        match matches.opt_str("f") {
+            Some(file_name) => match File::open(file_name.clone()) {
+                Ok(_) => context.input_filename = file_name,
+                Err(err) => {
+                    context.print_help = true;
+                    context.error_text = format!("Wrong input file: {}\n{}", file_name, err.to_string());
+                },
+            }
+            None => {},
+        }
+
+        match matches.opt_str("i") {
+            Some(indent_str) => match u8::from_str(&indent_str) {
+                Ok(indent) => context.indent = indent,
+                Err(err) => {
+                    context.print_help = true;
+                    context.error_text = format!("Wrong indent: {}\n{}", indent_str, err.to_string());
+                },
+            }
+            None => {},
+        }
+
+        match matches.opt_str("e") {
+            Some(emphasizer_str) => match emphasizer_str.chars().next() {
+                Some(emphasizer) => context.emphasizer = emphasizer,
+                None => {
+                    context.print_help = true;
+                    context.error_text = format!("Wrong emphasizer specified: {}", emphasizer_str);
+                },
+            }
+            None => {},
+        }
+
+        match matches.opt_str("c") {
+            Some(color) => {
+                match color_map().get(&color.to_lowercase()) {
+                    Some(color) => context.text_color = *color,
+                    None => {
+                        context.print_help = true;
+                        context.error_text = format!("Wrong color: {}", color);
+                    },
+                }
+            },
+            None => {},
+        }
+
+        match matches.opt_str("t") {
+            Some(emphasize_type) => {
+                match FrameMode::from_str(&emphasize_type.to_lowercase()) {
+                    Ok(mode) => context.frame_mode = mode,
+                    Err(_) => {
+                        context.print_help = true;
+                        context.error_text = format!("Wrong emphasize mode: {}", emphasize_type);
+                    },
+                }
+            },
+            None => {},
+        }
+
+        if matches.opt_present("r") {
+            context.is_regexp = true;
+
+            match Regex::new(&context.match_value) {
+                Ok(_) => {},
+                Err(err) => {
+                    context.print_help = true;
+                    context.error_text = format!("Wrong regexp: {}\n{}", context.match_value, err.to_string());
+                },
+            }
+        }
+
+        if matches.opt_present("C") {
+            context.with_color = false;
+        }
+
+        context
+    }
+}
+
 pub enum FrameMode {
     None,
     Frame,
@@ -44,127 +159,16 @@ pub enum FrameMode {
     All,
 }
 
-fn to_frame_mode(s: &str) -> Result<FrameMode, ()> {
-    match s {
+impl FrameMode {
+    fn from_str(s: &str) -> Result<FrameMode, ()> {
+        match s {
             "none" => Ok(FrameMode::None),
             "frame" => Ok(FrameMode::Frame),
             "prefix" => Ok(FrameMode::Prefix),
             "all" => Ok(FrameMode::All),
             _ => Err(()),
         }
-}
-
-fn default_context() -> Context {
-    Context {
-        input_filename: "".to_string(),
-        match_value: "".to_string(),
-        is_regexp: false,
-
-        indent: 0,
-
-        emphasizer: '!',
-        frame_mode: FrameMode::None,
-
-        with_color: true,
-        text_color: term::color::BRIGHT_RED,
-
-        print_help: false,
-        error_text: "".to_string(),
     }
-}
-
-pub fn from_args(args: &[String], options: &Options) -> Context {
-    let mut context = default_context();
-    let matches = match options.parse(args) {
-        Ok(m) => { m }
-        Err(f) => { panic!(f.to_string()) }
-    };
-
-    if matches.opt_present("h") {
-        context.print_help = true;
-        return context;
-    }
-
-    if !matches.free.is_empty() {
-        context.match_value = matches.free[0].clone();
-    }
-
-    match matches.opt_str("f") {
-        Some(file_name) => match File::open(file_name.clone()) {
-            Ok(_) => context.input_filename = file_name,
-            Err(err) => {
-                context.print_help = true;
-                context.error_text = format!("Wrong input file: {}\n{}", file_name, err.to_string());
-            },
-        }
-        None => {},
-    }
-
-    match matches.opt_str("i") {
-        Some(indent_str) => match u8::from_str(&indent_str) {
-            Ok(indent) => context.indent = indent,
-            Err(err) => {
-                context.print_help = true;
-                context.error_text = format!("Wrong indent: {}\n{}", indent_str, err.to_string());
-            },
-        }
-        None => {},
-    }
-
-    match matches.opt_str("e") {
-        Some(emphasizer_str) => match emphasizer_str.chars().next() {
-            Some(emphasizer) => context.emphasizer = emphasizer,
-            None => {
-                context.print_help = true;
-                context.error_text = format!("Wrong emphasizer specified: {}", emphasizer_str);
-            },
-        }
-        None => {},
-    }
-
-    match matches.opt_str("c") {
-        Some(color) => {
-            match color_map().get(&color.to_lowercase()) {
-                Some(color) => context.text_color = *color,
-                None => {
-                    context.print_help = true;
-                    context.error_text = format!("Wrong color: {}", color);
-                },
-            }
-        },
-        None => {},
-    }
-
-    match matches.opt_str("t") {
-        Some(emphasize_type) => {
-            match to_frame_mode(&emphasize_type.to_lowercase()) {
-                Ok(mode) => context.frame_mode = mode,
-                Err(_) => {
-                    context.print_help = true;
-                    context.error_text = format!("Wrong emphasize mode: {}", emphasize_type);
-                },
-            }
-        },
-        None => {},
-    }
-
-    if matches.opt_present("r") {
-        context.is_regexp = true;
-
-        match Regex::new(&context.match_value) {
-            Ok(_) => {},
-            Err(err) => {
-                context.print_help = true;
-                context.error_text = format!("Wrong regexp: {}\n{}", context.match_value, err.to_string());
-            },
-        }
-    }
-
-    if matches.opt_present("C") {
-        context.with_color = false;
-    }
-
-    context
 }
 
 // TODO: can I make it static global and unmutable variable?

@@ -8,14 +8,15 @@ mod options;
 use std::io::{self, BufRead, BufReader};
 use std::{env, fs::File};
 use regex::Regex;
+use context::Context;
 
 fn main() {
     let args: Vec<String> = env::args().collect();
     let program_name = args[0].clone();
-    let options = options::get();
+    let options = options::new();
     let mut terminal = term::stdout().unwrap();
 
-    let context = context::from_args(&args[1..], &options);
+    let context = Context::from_args(&args[1..], &options);
     if context.print_help {
         if !context.error_text.is_empty() {
             terminal.fg(term::color::BRIGHT_RED).unwrap();

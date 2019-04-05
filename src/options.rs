@@ -1,6 +1,6 @@
 use getopts::Options;
 
-pub fn get() -> Options {
+pub fn new() -> Options {
     let mut options = Options::new();
 
     options.optflag("h", "help", "print this help menu");
