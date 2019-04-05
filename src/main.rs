@@ -6,8 +6,7 @@ mod context;
 mod options;
 
 use std::io::{self, BufRead, BufReader};
-use std::env;
-use std::fs::File;
+use std::{env, fs::File};
 use regex::Regex;
 
 fn main() {
@@ -16,8 +15,7 @@ fn main() {
     let options = options::get();
     let mut terminal = term::stdout().unwrap();
 
-    // TODO: can it be more accurate (without to_vec)?
-    let context = context::from_args(args[1..].to_vec(), &options);
+    let context = context::from_args(&args[1..], &options);
     if context.print_help {
         if !context.error_text.is_empty() {
             terminal.fg(term::color::BRIGHT_RED).unwrap();

@@ -1,9 +1,7 @@
 extern crate term;
 
 use getopts::Options;
-use std::collections::HashMap;
-use std::str::FromStr;
-use std::fs::File;
+use std::{collections::HashMap, str::FromStr, fs::File};
 use regex::Regex;
 
 pub struct Context {
@@ -75,9 +73,9 @@ fn default_context() -> Context {
     }
 }
 
-pub fn from_args(args: Vec<String>, options: &Options) -> Context {
+pub fn from_args(args: &[String], options: &Options) -> Context {
     let mut context = default_context();
-    let matches = match options.parse(&args) {
+    let matches = match options.parse(args) {
         Ok(m) => { m }
         Err(f) => { panic!(f.to_string()) }
     };
