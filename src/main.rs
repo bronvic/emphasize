@@ -13,10 +13,9 @@ use context::Context;
 fn main() {
     let args: Vec<String> = env::args().collect();
     let program_name = args[0].clone();
-    let options = options::new();
     let mut terminal = term::stdout().unwrap();
 
-    let context = Context::from_args(&args[1..], &options);
+    let context = Context::from_args(&args[1..]);
     if context.print_help {
         if !context.error_text.is_empty() {
             terminal.fg(term::color::BRIGHT_RED).unwrap();
@@ -24,7 +23,7 @@ fn main() {
             terminal.reset().unwrap();
         }
 
-        options::print_usage(&program_name, options);
+        options::print_usage(&program_name, options::new());
         return;
     }
 

@@ -1,8 +1,8 @@
 extern crate term;
 
-use getopts::Options;
 use std::{collections::HashMap, str::FromStr, fs::File};
 use regex::Regex;
+use options;
 
 pub struct Context {
     // It would be great to have such generic iterator here, as commented below
@@ -56,9 +56,9 @@ impl Context {
         }
     }
 
-    pub fn from_args(args: &[String], options: &Options) -> Context {
+    pub fn from_args(args: &[String]) -> Context {
         let mut context = Context::default();
-        let matches = match options.parse(args) {
+        let matches = match options::new().parse(args) {
             Ok(m) => { m }
             Err(f) => { panic!(f.to_string()) }
         };
