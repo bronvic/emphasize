@@ -58,10 +58,7 @@ impl Context {
 
     pub fn from_args(args: &[String]) -> Context {
         let mut context = Context::default();
-        let matches = match options::new().parse(args) {
-            Ok(m) => { m }
-            Err(f) => { panic!(f.to_string()) }
-        };
+        let matches = options::new().parse(args).expect("Failed to parse options");
 
         if matches.opt_present("h") {
             context.print_help = true;
