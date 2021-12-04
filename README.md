@@ -5,7 +5,7 @@ Emphasize is a simple CLI program that allows you to emphasize text from stdin o
 It works the same as grep util, but instead of hiding inappropriate strings it emphasizes matched ones
 
 # Who needs it?
-If you are looking some strings in continues flow of logs, you may want to emphasize something you need without
+If you are looking for some strings in continues flow of logs, you may want to emphasize something you need without
 hiding everything else. That was the case I wrote this program for
 
 # How to run
