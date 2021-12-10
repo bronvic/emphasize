@@ -1,11 +1,11 @@
 #  About
 
-Emphasize is a simple CLI program that allows you to emphasize text from stdin or file by text, color or indent
+Emphasize is a simple CLI program that allows you to emphasize text from stdin or file by text, color, or indent
 
-It works the same as grep util, but instead of hiding inappropriate strings it emphasizes matched ones
+It works the same as grep tool, but instead of hiding inappropriate strings it emphasizes matched ones
 
 # Who needs it?
-If you are looking for some strings in continues flow of logs, you may want to emphasize something you need without
+If you are looking for some lines in a continuous flow of logs, you may want to emphasize something you need without
 hiding everything else. That was the case I wrote this program for
 
 # How to run
@@ -22,14 +22,14 @@ cargo build --release
 | -h, --help | Print help menu |
 | -f, --file | Path to the input file. If omitted, stdin will be used |
 | -i, --indent | Indent before and after match string. Should be in the range of 0-127 |
-| -e, --emphasizer | Symbol used to emphasize matched by text. Default symbol is '!'. Works with -t option |
+| -e, --emphasizer | Symbol used to emphasize matched by text. The default symbol is '!'. Works with -t option |
 | -c, --color | Color of the matched string. See [list of colors](https://github.com/bronvic/emphasize/blob/master/README.md#list-of-colors) below |
-| -t, --text-emphasize | Different modes to emphasize matched string by framing it with added strings and/or modify it's prefix and/or suffix. See [list of modes](https://github.com/bronvic/emphasize/blob/master/README.md#list-of-modes) below |
+| -t, --text-emphasize | Different modes to emphasize matched string by framing it with added strings and/or modifying its prefix and/or suffix. See [list of modes](https://github.com/bronvic/emphasize/blob/master/README.md#list-of-modes) below |
 | -r, --regexp | Search by regexp |
 | -C, --without-color | Disables color emphasizing |
 
 ## List of colors
-You can choose one of this colores: 
+You can choose one of this colors: 
 * black
 * blue
 * bright_black
@@ -49,12 +49,11 @@ You can choose one of this colores:
 
 ## List of modes
 * none - do not emphasize by text
-* frame - inserts string made of emphasize symbols before and after matched string
-* prefix - inserts prefix made of one emphasize symbol before matched string
-* all - inserts frame, prefix and suffix around matches string
+* frame - inserts string made of emphasize symbols before and after the matched string
+* prefix - inserts prefix made of one emphasize symbol before the matched string
+* all - inserts frame, prefix, and suffix around matches string
 
 Default emphasize symbol is '!'
-
 
 # Examples
 ![tail -f /var/log/Xorg.0.log | ./target/debug/emphasize 2.4](https://github.com/bronvic/emphasize/blob/master/content/emph_default.png?raw=true)
