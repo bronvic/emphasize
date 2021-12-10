@@ -32,7 +32,7 @@ fn main() {
     let mut stdin_lines;
     let mut file_lines;
     let file;
-    let input: &mut Iterator<Item = _> = match context.input_filename.is_empty() {
+    let input: &mut dyn Iterator<Item = _> = match context.input_filename.is_empty() {
         true => {
             stdin = io::stdin();
             stdin_lines = stdin.lock().lines();
@@ -50,7 +50,7 @@ fn main() {
 
     for line in input {
         let unwrapped_line = line.unwrap();
-        let mut matches: bool;
+        let matches: bool;
 
         if context.is_regexp {
             matches = Regex::new(&context.match_value).unwrap().is_match(&unwrapped_line);
