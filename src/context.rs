@@ -2,7 +2,7 @@ extern crate term;
 
 use std::{collections::HashMap, str::FromStr, fs::File};
 use regex::Regex;
-use options;
+use crate::options;
 
 pub struct Context {
     // It would be great to have such generic iterator here, as commented below

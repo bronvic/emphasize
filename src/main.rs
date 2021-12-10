@@ -8,7 +8,7 @@ mod options;
 use std::io::{self, BufRead, BufReader};
 use std::{env, fs::File};
 use regex::Regex;
-use context::Context;
+use crate::context::Context;
 
 fn main() {
     let args: Vec<String> = env::args().collect();
