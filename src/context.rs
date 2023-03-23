@@ -1,21 +1,17 @@
 extern crate term;
 
-use std::{collections::HashMap, str::FromStr, fs::File};
-use regex::Regex;
 use crate::options;
+use regex::Regex;
+use std::{
+    collections::HashMap,
+    fs::File,
+    io::{self, BufRead, BufReader, Stdout},
+    str::FromStr,
+};
+use term::Terminal;
+
 
 pub struct Context {
-    // It would be great to have such generic iterator here, as commented below
-    // We could store there iterator over stdin or file and iterate like this:
-    // for line in context.input {
-
-    // Unfortunately, it seems impossible. And it is very very sad.
-    // https://stackoverflow.com/questions/55314607/how-to-store-an-iterator-over-stdin-in-a-structure#55314945
-
-    // TODO: become rust guru and resolve this problem
-
-    // pub input: Box<Iterator<Item = io::Result<String>>>
-
     pub input_filename: String,
     pub match_value: String,
     pub is_regexp: bool,
@@ -145,6 +141,81 @@ impl Context {
         }
 
         context
+    }
+
+    pub fn get_input(&self) -> Box<dyn Iterator<Item = std::io::Result<String>>> {
+        if self.input_filename.is_empty() {
+            Box::new(io::stdin().lock().lines())
+        } else {
+            let file = File::open(&self.input_filename).expect("Can't open file");
+            Box::new(BufReader::new(file).lines())
+        }
+    }
+
+    pub fn match_line(&self, line: &str) -> bool {
+        if self.is_regexp {
+            Regex::new(&self.match_value).unwrap().is_match(line)
+        } else {
+            line.contains(&self.match_value)
+        }
+    }
+
+    pub fn print_emphasized_line(&self, line: &str, terminal: &mut Box<dyn Terminal<Output = Stdout> + Send>) {
+        for _ in 0..self.indent { println!(""); };
+
+        if self.with_color { terminal.fg(self.text_color).unwrap(); };
+
+        match self.frame_mode {
+            FrameMode::None => {
+                println!("{}", line);
+            },
+            FrameMode::Frame => {
+                println!("{}", self.emphasize_line(line.len()));
+                println!("{}", line);
+                println!("{}", self.emphasize_line(line.len()));
+            },
+            FrameMode::Prefix => {
+                println!("{}", self.prefix_line(line));
+            },
+            FrameMode::All => {
+                println!("{}", self.emphasize_line(line.len() + 4));
+                println!("{}", self.wrapped_line(line));
+                println!("{}", self.emphasize_line(line.len() + 4));
+            },
+        }
+
+        terminal.reset().unwrap();
+        for _ in 0..self.indent { println!(""); };
+    }
+
+    fn emphasize_line(&self, length: usize) -> String {
+        let mut emphasized_line = String::new();
+
+        for _ in 0..length {
+            emphasized_line.push(self.emphasizer);
+        }
+
+        emphasized_line
+    }
+
+    pub fn wrapped_line(&self, line: &str) -> String {
+        let prefix_line = self.prefix_line(line);
+
+        let mut wrapped_line = String::with_capacity(prefix_line.len() + 2);
+        wrapped_line.push_str(&prefix_line);
+        wrapped_line.push(' ');
+        wrapped_line.push(self.emphasizer);
+
+        wrapped_line
+    }
+
+    pub fn prefix_line(&self, line: &str) -> String {
+        let mut prefix_line = String::with_capacity(line.len() + 2);
+        prefix_line.push(self.emphasizer);
+        prefix_line.push(' ');
+        prefix_line.push_str(line);
+
+        prefix_line
     }
 }
 
